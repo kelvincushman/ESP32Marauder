@@ -9,6 +9,7 @@ This guide shows exactly what changes to make to the existing Marauder codebase 
 - `IRInterface.h` / `IRInterface.cpp` - IR capture/replay module
 - `SubGHzInterface.h` / `SubGHzInterface.cpp` - 433/868MHz radio module
 - `PentestModule.h` / `PentestModule.cpp` - Integration middleware
+- `SavedConnections.h` / `SavedConnections.cpp` - Persistent storage for all connection data
 - `theme_matrix.h` - Matrix green hacker theme
 - `configs_pentest.h` - Board configuration for pentest build
 
@@ -440,3 +441,146 @@ Check that menu initialization runs before addNodes calls
 
 ### Hardware not responding
 Verify GPIO pin assignments match your wiring
+
+---
+
+## Saved Connections System
+
+The SavedConnections module provides persistent storage for ALL connection data:
+
+### Supported Data Types
+
+| Module | Data Saved |
+|--------|------------|
+| **WiFi** | SSIDs, BSSIDs, channels, passwords, handshake files |
+| **Bluetooth** | Device names, MAC addresses, skimmer flags |
+| **IR** | Protocols, codes, raw timings, replay data |
+| **Sub-GHz** | Frequencies, modulations, codes, rolling code warnings |
+| **RFID** | UIDs, card types, keys, security assessments |
+
+### Storage Structure
+
+```
+/pentest/
+├── wifi/
+│   └── wifi_*.dat
+├── bluetooth/
+│   └── bt_*.dat
+├── ir/
+│   └── ir_*.dat
+├── subghz/
+│   └── subghz_*.dat
+├── rfid/
+│   └── rfid_*.dat
+└── session/
+    ├── settings.json
+    └── history.json
+```
+
+### Usage Examples
+
+#### Quick Save from Capture
+```cpp
+// Save captured IR signal
+uint32_t id = saved_conn_obj.quickSaveIR(protocol, code, bits, "TV_Power");
+
+// Save WiFi network
+uint32_t id = saved_conn_obj.quickSaveWiFi(ssid, bssid, channel, rssi, encType);
+
+// Save Bluetooth device
+uint32_t id = saved_conn_obj.quickSaveBT(deviceName, macAddress, rssi, isClassic);
+
+// Save RFID card
+uint32_t id = saved_conn_obj.quickSaveRFID(uid, uidLength, cardType, "Office_Badge");
+
+// Save Sub-GHz signal
+uint32_t id = saved_conn_obj.quickSaveSubGHz(frequency, protocol, code, "Garage_Door");
+```
+
+#### Rename and Edit
+```cpp
+// Rename saved items
+saved_conn_obj.renameIRSignal(id, "New Name");
+saved_conn_obj.renameWiFiNetwork(id, "Home Router");
+saved_conn_obj.renameBTDevice(id, "My Headphones");
+saved_conn_obj.renameRFIDCard(id, "Work Badge");
+saved_conn_obj.renameSubGHzSignal(id, "Front Gate");
+
+// Add notes
+saved_conn_obj.setIRSignalNotes(id, "Works with Samsung TV");
+saved_conn_obj.setWiFiNetworkNotes(id, "Captured handshake on 2024-01-15");
+
+// Mark favorites
+saved_conn_obj.toggleWiFiFavorite(id);
+saved_conn_obj.toggleBTFavorite(id);
+
+// Mark as pentest target
+saved_conn_obj.markWiFiAsTarget(id, true);
+saved_conn_obj.markBTAsSkimmer(id, true);
+
+// Store WiFi password
+saved_conn_obj.setWiFiPassword(id, "cracked_password");
+```
+
+#### Load and List
+```cpp
+// Get all saved items
+LinkedList<SavedIRSignal>* irSignals = saved_conn_obj.getAllIRSignals();
+LinkedList<SavedWiFiNetwork>* networks = saved_conn_obj.getAllWiFiNetworks();
+LinkedList<SavedBTDevice>* btDevices = saved_conn_obj.getAllBTDevices();
+LinkedList<SavedRFIDCard>* cards = saved_conn_obj.getAllRFIDCards();
+LinkedList<SavedSubGHzSignal>* subghzSignals = saved_conn_obj.getAllSubGHzSignals();
+
+// Get favorites only
+LinkedList<SavedWiFiNetwork>* favorites = saved_conn_obj.getFavoriteWiFiNetworks();
+
+// Get pentest targets
+LinkedList<SavedWiFiNetwork>* targets = saved_conn_obj.getTargetWiFiNetworks();
+
+// Get potential skimmers
+LinkedList<SavedBTDevice>* skimmers = saved_conn_obj.getSkimmerBTDevices();
+```
+
+#### Delete
+```cpp
+saved_conn_obj.deleteIRSignal(id);
+saved_conn_obj.deleteWiFiNetwork(id);
+saved_conn_obj.deleteBTDevice(id);
+saved_conn_obj.deleteRFIDCard(id);
+saved_conn_obj.deleteSubGHzSignal(id);
+```
+
+### Session Management
+
+```cpp
+// Save current session (settings + history)
+saved_conn_obj.saveSession();
+
+// Load session on startup
+saved_conn_obj.loadSession();
+
+// Access settings
+SessionSettings* settings = saved_conn_obj.getSettings();
+settings->irAutoSave = true;
+settings->matrixThemeEnabled = true;
+saved_conn_obj.saveSettings(settings);
+
+// View history
+LinkedList<SessionHistoryEntry>* history = saved_conn_obj.getHistory();
+```
+
+### Data Persistence
+
+All data is stored in JSON format on the SD card for:
+- Portability between devices
+- Easy backup and restore
+- Human-readable format for debugging
+- Import/export capabilities
+
+### Auto-Save Feature
+
+Enable auto-save in settings to automatically save:
+- Every captured IR signal
+- Every captured Sub-GHz signal
+- Every read RFID card
+- Session history after each action
