@@ -32,13 +32,16 @@ This fork extends ESP32 Marauder with additional penetration testing capabilitie
 | **IR Interface** | IR LED + VS1838B | Capture, replay, TV-B-Gone, protocol decode |
 | **Sub-GHz Radio** | CC1101 | 315/433/868/915 MHz, signal capture/replay |
 | **RFID/NFC** | RC522/PN532 | Card reading, security assessment, key testing |
+| **LoRa Radio** | SX1276/SX1262 | Packet sniffing, Meshtastic/LoRaWAN decode, pager mode |
 
 ### Features
 
-- **Saved Connections** - Persistent storage for all captured data (WiFi, BT, IR, Sub-GHz, RFID)
+- **Saved Connections** - Persistent storage for all captured data (WiFi, BT, IR, Sub-GHz, RFID, LoRa)
 - **Matrix Theme** - Retro green hacker aesthetic with animated boot screen
 - **Touch UI** - Full integration with existing Marauder menu system
 - **Session Management** - Settings, history, favorites, and notes
+- **Pager Mode** - Meshtastic-compatible messaging (like Hacker Pager)
+- **PCAP Export** - Save captured LoRa packets for analysis
 
 ### New Files
 
@@ -47,6 +50,7 @@ esp32_marauder/
 ├── IRInterface.h/cpp        # IR capture and replay
 ├── SubGHzInterface.h/cpp    # CC1101 radio control
 ├── RFIDInterface.h/cpp      # RFID/NFC security auditing
+├── LoRaInterface.h/cpp      # LoRa packet capture & Meshtastic
 ├── PentestModule.h/cpp      # Integration middleware
 ├── SavedConnections.h/cpp   # Persistent data storage
 ├── theme_matrix.h           # Matrix green theme
@@ -67,8 +71,20 @@ esp32_marauder/
 | CC1101 Module | Sub-GHz radio | $3-5 |
 | RC522 Module | RFID reader | $2-3 |
 | IR LED + VS1838B | IR TX/RX | $1-2 |
+| SX1276/SX1278 Module | LoRa radio | $4-8 |
 
-**Total additional cost: ~$15-25**
+**Total additional cost: ~$20-35**
+
+### LoRa Capabilities
+
+Inspired by projects like the [Hacker Pager](https://shop.exploitee.rs/shop/p/the-hacker-pager):
+
+- **Packet Sniffing** - Capture LoRa packets to PCAP files
+- **Meshtastic Decode** - Parse Meshtastic mesh network traffic
+- **LoRaWAN Analysis** - Decode LoRaWAN join requests and data frames
+- **Spectrum Scan** - Find active LoRa channels
+- **Pager Mode** - Send/receive Meshtastic-compatible messages
+- **Replay Attacks** - Replay captured packets (authorized testing only)
 
 ---
 
