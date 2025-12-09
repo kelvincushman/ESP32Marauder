@@ -196,7 +196,60 @@ GND       → GND
 
 ---
 
-### Module 4: 125 kHz RFID (Low Frequency)
+### Module 4: PN532 NFC (Advanced NFC with EMV/APDU)
+
+**Purpose:** Advanced NFC operations including EMV card reading, APDU commands, FeliCa support, and card emulation. More capable than RC522.
+
+**Hardware Required:**
+- **PN532** module (supports I2C, SPI, or UART)
+- Recommended: I2C mode for reliability
+
+**PN532 Wiring (I2C Mode):**
+```
+PN532 Pin → ESP32 GPIO
+SDA       → GPIO 22 (I2C Data)
+SCL       → GPIO 14 (I2C Clock)
+IRQ       → GPIO 36 (Input only - OK for interrupt)
+RSTO      → Not connected (optional)
+VCC       → 3.3V
+GND       → GND
+```
+
+**Important:** Set PN532 mode switches to I2C:
+- SEL0: OFF (H)
+- SEL1: ON (L)
+
+**Library:** `Adafruit_PN532`
+
+**Features to Implement:**
+1. **ISO 14443A/B Read** - All common card types
+2. **EMV Card Info** - Read payment card metadata (PAN masked, expiry, app label)
+3. **APDU Shell** - Send custom APDU commands
+4. **FeliCa Support** - Japanese transit cards (Suica, PASMO)
+5. **Card Emulation** - Limited UID emulation
+6. **Full Card Dump** - Export all readable data
+
+**Supported Protocols:**
+- ISO 14443A (MIFARE, NTAG)
+- ISO 14443B
+- ISO 14443-4 (Smart Cards, EMV)
+- FeliCa (212/424 kbps)
+- ISO 15693 (limited)
+
+**Scan Mode Constants:**
+```cpp
+#define NFC_SCAN_READ           160
+#define NFC_SCAN_EMV            161
+#define NFC_SCAN_FELICA         162
+#define NFC_SCAN_EMULATE        163
+#define NFC_SCAN_APDU           164
+```
+
+**Note:** Choose either RC522 (basic, SPI) OR PN532 (advanced, I2C), not both. PN532 is recommended for EMV research.
+
+---
+
+### Module 5: 125 kHz RFID (Low Frequency)
 
 **Purpose:** Clone older access cards (HID, EM4100, etc.)
 
@@ -351,8 +404,16 @@ ESP32-WROOM Pinout for Multi-Protocol Build:
     CC1101 GDO0 ────│ GPIO 25         │
     CC1101 GDO2 ────│ GPIO 26         │
                     │                 │
-    RFID CS ────────│ GPIO 13         │
-    RFID RST ───────│ GPIO 12         │
+    RFID CS ────────│ GPIO 13         │  (RC522 - Basic)
+    RFID RST ───────│ GPIO 12         │  (RC522 - Basic)
+                    │                 │
+    PN532 SDA ──────│ GPIO 22         │  (PN532 - Advanced)
+    PN532 SCL ──────│ GPIO 14         │  (PN532 - Advanced)
+    PN532 IRQ ──────│ GPIO 36         │  (PN532 - Advanced)
+                    │                 │
+    LoRa CS ────────│ GPIO 33         │
+    LoRa RST ───────│ GPIO 32         │
+    LoRa IRQ ───────│ GPIO 35         │
                     │                 │
     TFT CS ─────────│ GPIO 5          │
     TFT DC ─────────│ GPIO 2          │
@@ -361,15 +422,15 @@ ESP32-WROOM Pinout for Multi-Protocol Build:
     SD CS ──────────│ GPIO 4          │
                     │                 │
     [Shared SPI Bus]│                 │
-    MOSI ───────────│ GPIO 23         │──── TFT/SD/CC1101/RFID
-    MISO ───────────│ GPIO 19         │──── TFT/SD/CC1101/RFID
-    SCK ────────────│ GPIO 18         │──── TFT/SD/CC1101/RFID
-                    │                 │
-    LED (NeoPixel) ─│ GPIO 33         │
-    Battery ADC ────│ GPIO 32         │
+    MOSI ───────────│ GPIO 23         │──── TFT/SD/CC1101/RFID/LoRa
+    MISO ───────────│ GPIO 19         │──── TFT/SD/CC1101/RFID/LoRa
+    SCK ────────────│ GPIO 18         │──── TFT/SD/CC1101/RFID/LoRa
                     │                 │
     Touch CS ───────│ GPIO 21 (opt)   │
                     └─────────────────┘
+
+Note: Choose RC522 (GPIO 12,13) OR PN532 (GPIO 14,22,36), not both.
+PN532 uses I2C, all others use shared SPI bus.
 ```
 
 ---
@@ -380,12 +441,17 @@ ESP32-WROOM Pinout for Multi-Protocol Build:
 |-----------|---------|----------------|------|
 | IR LED 940nm | IR Transmit | $0.50 | AliExpress |
 | TSOP38238 | IR Receive | $0.50 | AliExpress |
-| CC1101 Module | Sub-GHz Radio | $5-8 | AliExpress |
-| RC522 Module | RFID 13.56MHz | $2-4 | AliExpress |
+| CC1101 Module | Sub-GHz Radio | $3-5 | AliExpress |
+| RC522 Module | RFID 13.56MHz (Basic) | $2-3 | AliExpress |
+| **PN532 Module** | **NFC/EMV (Advanced)** | **$5-8** | AliExpress |
+| SX1276/SX1278 Module | LoRa Radio | $4-8 | AliExpress |
 | NEO-6M GPS | Location | $5-8 | AliExpress |
 | Resistors (100-220 ohm) | IR circuit | $0.10 | - |
 | Jumper wires | Connections | $2 | - |
-| **Total** | | **~$15-25** | |
+| **Total (Basic)** | | **~$15-25** | |
+| **Total (Full)** | | **~$25-40** | |
+
+**Note:** Choose RC522 OR PN532 for NFC. PN532 recommended for EMV card research.
 
 ---
 

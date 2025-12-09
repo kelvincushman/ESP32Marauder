@@ -35,6 +35,8 @@
 #define IR_SIGNALS_FILE       "/pentest/ir/signals.json"
 #define SUBGHZ_SIGNALS_FILE   "/pentest/subghz/signals.json"
 #define RFID_CARDS_FILE       "/pentest/rfid/cards.json"
+#define NFC_CARDS_DIR         "/pentest/nfc"
+#define NFC_CARDS_FILE        "/pentest/nfc/cards.json"
 #define SESSION_FILE          "/pentest/session/session.json"
 #define SETTINGS_FILE         "/pentest/session/settings.json"
 #define HISTORY_FILE          "/pentest/session/history.json"
@@ -46,6 +48,7 @@
 #define MAX_SAVED_IR_SIGNALS      50
 #define MAX_SAVED_SUBGHZ_SIGNALS  50
 #define MAX_SAVED_RFID_CARDS      100
+#define MAX_SAVED_NFC_CARDS       100
 #define MAX_SESSION_HISTORY       200
 #define MAX_NAME_LENGTH           32
 #define MAX_NOTES_LENGTH          128
@@ -103,6 +106,31 @@ struct SavedRFIDCard {
     uint8_t securityLevel;      // Security assessment
     uint32_t timestamp;
     bool favorite;
+};
+
+// Saved NFC Card (PN532 - EMV/APDU capable)
+struct SavedNFCCard {
+    uint32_t id;
+    char name[MAX_NAME_LENGTH];
+    char notes[MAX_NOTES_LENGTH];
+    uint8_t uid[10];            // Card UID (up to 10 bytes)
+    uint8_t uidLength;
+    uint8_t cardType;           // ISO 14443-4, FeliCa, etc.
+    bool isSmartCard;           // Supports ISO 14443-4 / APDU
+    // EMV data (if readable)
+    char applicationLabel[32];  // e.g., "VISA CREDIT"
+    uint8_t aid[16];            // Application ID
+    uint8_t aidLength;
+    char panMasked[24];         // Masked PAN (first 4 + last 4)
+    char expiry[8];             // MM/YY
+    // FeliCa data
+    uint8_t felicaIdm[8];       // FeliCa Manufacture ID
+    uint8_t felicaPmm[8];       // FeliCa Manufacture Parameter
+    uint16_t felicaSystem;      // System code
+    // Metadata
+    uint32_t timestamp;
+    bool favorite;
+    bool hasEMVData;
 };
 
 // Saved WiFi Network
@@ -238,6 +266,21 @@ public:
     // Quick save from read
     uint32_t quickSaveRFID(uint8_t* uid, uint8_t uidLength, uint8_t cardType, const char* autoName = NULL);
 
+    // ========== NFC CARD OPERATIONS (PN532) ==========
+    bool saveNFCCard(SavedNFCCard* card);
+    bool loadNFCCard(uint32_t id, SavedNFCCard* card);
+    bool deleteNFCCard(uint32_t id);
+    bool updateNFCCard(SavedNFCCard* card);
+    bool renameNFCCard(uint32_t id, const char* newName);
+    bool setNFCCardNotes(uint32_t id, const char* notes);
+    bool toggleNFCFavorite(uint32_t id);
+    LinkedList<SavedNFCCard>* getAllNFCCards();
+    LinkedList<SavedNFCCard>* getFavoriteNFCCards();
+    uint8_t getNFCCardCount();
+
+    // Quick save from read
+    uint32_t quickSaveNFC(uint8_t* uid, uint8_t uidLength, uint8_t cardType, bool isSmartCard, const char* autoName = NULL);
+
     // ========== WIFI NETWORK OPERATIONS ==========
     bool saveWiFiNetwork(SavedWiFiNetwork* network);
     bool loadWiFiNetwork(uint32_t id, SavedWiFiNetwork* network);
@@ -295,6 +338,7 @@ public:
     bool exportIRSignal(uint32_t id, const char* filename);
     bool exportSubGHzSignal(uint32_t id, const char* filename);
     bool exportRFIDCard(uint32_t id, const char* filename);
+    bool exportNFCCard(uint32_t id, const char* filename);
 
     // ========== UTILITY ==========
     uint32_t generateUniqueId();
@@ -310,6 +354,7 @@ private:
     LinkedList<SavedIRSignal>* irSignals;
     LinkedList<SavedSubGHzSignal>* subghzSignals;
     LinkedList<SavedRFIDCard>* rfidCards;
+    LinkedList<SavedNFCCard>* nfcCards;
     LinkedList<SessionHistoryEntry>* sessionHistory;
     SessionSettings currentSettings;
 
@@ -326,6 +371,8 @@ private:
     bool jsonToSubGHzSignal(String json, SavedSubGHzSignal* signal);
     String rfidCardToJson(SavedRFIDCard* card);
     bool jsonToRFIDCard(String json, SavedRFIDCard* card);
+    String nfcCardToJson(SavedNFCCard* card);
+    bool jsonToNFCCard(String json, SavedNFCCard* card);
 
     // Auto-naming
     String generateAutoName(uint8_t moduleType, uint8_t protocol = 0);
@@ -355,7 +402,9 @@ extern SavedConnections saved_conn_obj;
 #define MODULE_IR       1
 #define MODULE_SUBGHZ   2
 #define MODULE_RFID     3
-#define MODULE_WIFI     4
-#define MODULE_BT       5
+#define MODULE_NFC      4
+#define MODULE_WIFI     5
+#define MODULE_BT       6
+#define MODULE_LORA     7
 
 #endif // SavedConnections_h
