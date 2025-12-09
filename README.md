@@ -1,8 +1,24 @@
 # Marauder Neo - Multi-Protocol Pentest Platform
 
-<p align="center">
-  <img alt="Marauder Neo" src="https://github.com/justcallmekoko/ESP32Marauder/blob/master/pictures/marauder_skull_patch_04_full_final.png?raw=true" width="250">
-</p>
+```
+                    ╔══════════════════════════════════════╗
+                    ║                                      ║
+                    ║           /\      /\                 ║
+                    ║          /  \    /  \                ║
+                    ║          \**/ \**/                   ║
+                    ║             \__/                     ║
+                    ║                                      ║
+                    ║        M A R A U D E R  N E O       ║
+                    ║       [ PENTEST EDITION ]           ║
+                    ║                                      ║
+                    ║  > Initializing neural link...      ║
+                    ║  > Loading attack vectors...        ║
+                    ║  > ACCESS GRANTED                   ║
+                    ║                                      ║
+                    ║  "Wake up, Neo..."                  ║
+                    ║                                      ║
+                    ╚══════════════════════════════════════╝
+```
 
 <p align="center">
   <b>ESP32 Marauder + IR + Sub-GHz + RFID + NFC + LoRa</b>
