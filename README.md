@@ -3,19 +3,19 @@
 ```
                     ╔══════════════════════════════════════╗
                     ║                                      ║
-                    ║           /\      /\                 ║
-                    ║          /  \    /  \                ║
-                    ║          \**/ \**/                   ║
-                    ║             \__/                     ║
+                    ║             /\      /\               ║
+                    ║            /  \    /  \              ║
+                    ║              \**/ \**/               ║
+                    ║                \__/                  ║
                     ║                                      ║
-                    ║        M A R A U D E R  N E O       ║
-                    ║       [ PENTEST EDITION ]           ║
+                    ║      M A R A U D E R  N E O          ║
+                    ║       [ PENTEST EDITION ]            ║
                     ║                                      ║
-                    ║  > Initializing neural link...      ║
-                    ║  > Loading attack vectors...        ║
-                    ║  > ACCESS GRANTED                   ║
+                    ║  > Initializing neural link...       ║
+                    ║  > Loading attack vectors...         ║
+                    ║  > ACCESS GRANTED                    ║
                     ║                                      ║
-                    ║  "Wake up, Neo..."                  ║
+                    ║         "Wake up, Neo..."            ║
                     ║                                      ║
                     ╚══════════════════════════════════════╝
 ```
