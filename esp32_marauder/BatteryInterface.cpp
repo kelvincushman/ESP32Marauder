@@ -104,4 +104,6 @@ int8_t BatteryInterface::getBatteryLevel() {
       return this->power.getBatteryPercent();
     }
   #endif
+
+  return -1;  // No supported battery interface found
 }
