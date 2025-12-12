@@ -4,6 +4,10 @@
 
   #define configs_h
 
+  // Disable std::string support in ArduinoJson to fix compatibility
+  // with ESP32 Arduino Core 2.0.16 (GCC 8.4.0)
+  #define ARDUINOJSON_ENABLE_STD_STRING 0
+
   #define POLISH_POTATO
 
   //// BOARD TARGETS

@@ -12,7 +12,6 @@
 #define NFCInterface_h
 
 #include "configs.h"
-#include "configs_pentest.h"
 
 #ifdef HAS_PN532
 
