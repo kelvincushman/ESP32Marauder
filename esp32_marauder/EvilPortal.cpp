@@ -1,6 +1,11 @@
 #include "EvilPortal.h"
 
-#ifdef HAS_PSRAM
+// Define apName and index_html here (declared extern in header)
+char apName[MAX_AP_NAME_SIZE] = "PORTAL";
+
+#ifndef HAS_PSRAM
+  char index_html[MAX_HTML_SIZE] = "TEST";
+#else
   char* index_html = nullptr;
 #endif
 
